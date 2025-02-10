@@ -53,6 +53,33 @@ function editProduct(productId) {
   alert("Product updated successfully!");
 }
 
+function updateStock(productId) {
+  const product = products.find((p) => p.id === productId);
+  if (!product) {
+    alert("Product not found!");
+    return;
+  }
+
+  const newStock = prompt("Enter new stock quantity:", product.stock);
+  if (newStock === null) return; // User clicked Cancel
+
+  const stockNum = parseInt(newStock);
+  if (isNaN(stockNum) || stockNum < 0) {
+    alert("Please enter a valid stock quantity!");
+    return;
+  }
+
+  // Update stock
+  product.stock = stockNum;
+
+  // Save to localStorage
+  saveData();
+
+  // Refresh the display
+  displayProducts();
+  alert("Stock updated successfully!");
+}
+
 function displayProducts() {
   const productTable = document.querySelector("#productTable tbody");
   if (!productTable) return;
@@ -73,4 +100,7 @@ function displayProducts() {
   });
 }
 
+// Initialize data
 loadData();
+// Display products initially
+displayProducts();

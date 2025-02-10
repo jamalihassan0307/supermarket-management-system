@@ -104,14 +104,16 @@ async function handleAddProduct(event) {
   event.preventDefault();
 
   const newProduct = {
+    id: generateProductId(),
     name: document.getElementById("productName").value,
     price: parseFloat(document.getElementById("productPrice").value),
     stock: parseInt(document.getElementById("productStock").value),
   };
 
   try {
-    await createProduct(newProduct);
-    await displayProducts();
+    products.push(newProduct);
+    saveData();
+    displayProducts();
     hideModal();
     alert("Product added successfully!");
   } catch (error) {
@@ -121,80 +123,55 @@ async function handleAddProduct(event) {
 }
 
 function editProduct(productId) {
+  console.log("Edit button clicked for product ID:", productId);
   const product = products.find((p) => p.id === productId);
-  if (!product) return;
-
-  currentProductId = productId;
-
-  document.getElementById("modalTitle").textContent = "Edit Product";
-
-  document.getElementById("productName").value = product.name;
-  document.getElementById("productPrice").value = product.price;
-  document.getElementById("productStock").value = product.stock;
-
-  document.getElementById("productForm").onsubmit = handleEditProduct;
-
-  showModal();
-}
-
-async function handleEditProduct(event) {
-  event.preventDefault();
-  try {
-    const product = {
-      name: document.getElementById("productName").value,
-      price: parseFloat(document.getElementById("productPrice").value),
-      stock: parseInt(document.getElementById("productStock").value),
-    };
-
-    await updateProduct(currentProductId, product);
-    await displayProducts();
-    hideModal();
-    alert("Product updated successfully!");
-  } catch (error) {
-    console.error("Error updating product:", error);
-    alert("Error updating product. Please try again.");
+  if (!product) {
+    alert("Product not found!");
+    return;
   }
+
+  const newName = prompt("Enter new name:", product.name);
+  if (newName === null) return;
+
+  const newPrice = prompt("Enter new price:", product.price);
+  if (newPrice === null) return;
+
+  const newStock = prompt("Enter new stock:", product.stock);
+  if (newStock === null) return;
+
+  // Update product
+  product.name = newName || product.name;
+  product.price = parseFloat(newPrice) || product.price;
+  product.stock = parseInt(newStock) || product.stock;
+
+  // Save changes
+  saveData();
+  displayProducts();
+  alert("Product updated successfully!");
 }
 
 function updateStock(productId) {
+  console.log("Update Stock button clicked for product ID:", productId);
   const product = products.find((p) => p.id === productId);
-  if (!product) return;
-
-  currentProductId = productId;
-
-  document.getElementById("modalTitle").textContent = "Update Stock";
-
-  document.getElementById("productName").value = product.name;
-  document.getElementById("productName").disabled = true;
-  document.getElementById("productPrice").value = product.price;
-  document.getElementById("productPrice").disabled = true;
-  document.getElementById("productStock").value = product.stock;
-
-  document.getElementById("productForm").onsubmit = handleUpdateStock;
-
-  showModal();
-}
-
-async function handleUpdateStock(event) {
-  event.preventDefault();
-
-  try {
-    const product = products.find((p) => p.id === currentProductId);
-    if (!product) return;
-
-    const newStock = parseInt(document.getElementById("productStock").value);
-    if (!isNaN(newStock) && newStock >= 0) {
-      await updateProduct(currentProductId, { ...product, stock: newStock });
-      await displayProducts();
-      hideModal();
-      alert("Stock updated successfully!");
-    } else {
-      alert("Please enter a valid number for stock quantity!");
-    }
-  } catch (error) {
-    console.error("Error updating stock:", error);
-    alert("Error updating stock. Please try again.");
+  if (!product) {
+    alert("Product not found!");
+    return;
   }
+
+  const newStock = prompt("Enter new stock quantity:", product.stock);
+  if (newStock === null) return;
+
+  const stockNum = parseInt(newStock);
+  if (isNaN(stockNum) || stockNum < 0) {
+    alert("Please enter a valid stock quantity!");
+    return;
+  }
+
+  // Update stock
+  product.stock = stockNum;
+  saveData();
+  displayProducts();
+  alert("Stock updated successfully!");
 }
 
 async function displayOrders() {
