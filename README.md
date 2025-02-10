@@ -38,57 +38,57 @@ Check out the live demo: [https://jamalihassan0307.github.io/supermarket-mangmen
 
 #### 1. Login Page
 
-![Login Page](login.png)
+![Login Page](./screenshots/login.png)
 _Secure admin authentication interface_
 
 #### 2. Dashboard Overview
 
-![Dashboard](home.png)
+![Dashboard](./screenshots/home.png)
 _Main dashboard with credit statistics and due payments_
 
 #### 3. Product Management
 
-![Products](prodcut_managment.png)
+![Products](./screenshots/prodcut_managment.png)
 _Product management interface_
 
 #### 4. Add New Product
 
-![Add Product](add_product.png)
+![Add Product](./screenshots/add_product.png)
 _Interface for adding new products_
 
 #### 5. Edit Product
 
-![Edit Product](edit_product.png)
+![Edit Product](./screenshots/edit_product.png)
 _Edit existing products_
 
 #### 6. Update Stock
 
-![Update Stock](update_stock.png)
+![Update Stock](./screenshots/update_stock.png)
 _Quick stock updates_
 
 #### 7. User Management
 
-![Users](user_managment.png)
+![Users](./screenshots/user_managment.png)
 _User credit management_
 
 #### 8. Add New User
 
-![Add User](add_new_user.png)
+![Add User](./screenshots/add_new_user.png)
 _Add new users with credit details_
 
 #### 9. Order Management
 
-![Orders](order_managment.png)
+![Orders](./screenshots/order_managment.png)
 _Order tracking and management_
 
 #### 10. Create New Order
 
-![New Order](create_new_order.png)
+![New Order](./screenshots/create_new_order.png)
 _Create new orders for users_
 
 #### 11. Mark as Paid
 
-![Mark as Paid](mark_as_read.png)
+![Mark as Paid](./screenshots/mark_as_read.png)
 _Mark credit payments as paid_
 
 ## 🚀 Features
