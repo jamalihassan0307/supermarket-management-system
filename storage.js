@@ -1,26 +1,51 @@
 function saveData() {
-  localStorage.setItem("udhaarProducts", JSON.stringify(products));
-  localStorage.setItem("udhaarOrders", JSON.stringify(orders));
-  localStorage.setItem("udhaarUsers", JSON.stringify(users));
+  try {
+    localStorage.setItem("udhaarProducts", JSON.stringify(products));
+    localStorage.setItem("udhaarOrders", JSON.stringify(orders));
+    localStorage.setItem("udhaarUsers", JSON.stringify(users));
+    console.log("Data saved successfully");
+  } catch (error) {
+    console.error("Error saving data:", error);
+  }
 }
 
 function loadData() {
-  const savedProducts = localStorage.getItem("udhaarProducts");
-  const savedOrders = localStorage.getItem("udhaarOrders");
-  const savedUsers = localStorage.getItem("udhaarUsers");
+  try {
+    const savedProducts = localStorage.getItem("udhaarProducts");
+    const savedOrders = localStorage.getItem("udhaarOrders");
+    const savedUsers = localStorage.getItem("udhaarUsers");
 
-  if (savedProducts) products = JSON.parse(savedProducts);
-  if (savedOrders) orders = JSON.parse(savedOrders);
-  if (savedUsers) {
-    users = JSON.parse(savedUsers);
-  } else {
-    users = [
-      {
-        email: "admin@gmail.com",
-        password: "admin",
-      },
-    ];
-    saveData();
+    if (savedProducts) products = JSON.parse(savedProducts);
+    if (savedOrders) orders = JSON.parse(savedOrders);
+    if (savedUsers) {
+      users = JSON.parse(savedUsers);
+    } else {
+      // Initialize with default users if no saved data
+      users = [
+        {
+          id: 1,
+          email: "admin@gmail.com",
+          password: "admin",
+          role: "admin",
+          name: "Admin User",
+          udhaar: 0,
+          dueDate: null
+        },
+        {
+          id: 2,
+          email: "user@gmail.com",
+          password: "user",
+          role: "user",
+          name: "Regular User",
+          udhaar: 0,
+          dueDate: null
+        }
+      ];
+      saveData();
+    }
+    console.log("Data loaded successfully");
+  } catch (error) {
+    console.error("Error loading data:", error);
   }
 }
 
@@ -100,7 +125,7 @@ function displayProducts() {
   });
 }
 
-// Initialize data
+// Load data when the script is loaded
 loadData();
 // Display products initially
 displayProducts();

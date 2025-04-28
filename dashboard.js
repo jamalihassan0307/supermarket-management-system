@@ -4,24 +4,57 @@ if (!localStorage.getItem("isLoggedIn")) {
 
 function logout() {
   localStorage.removeItem("isLoggedIn");
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 }
 
 function showSection(sectionId) {
+  const userRole = localStorage.getItem("userRole");
+  
+  // Hide all sections first
   document.querySelectorAll(".section").forEach((section) => {
     section.classList.add("hidden");
   });
+  
+  // Remove active class from all buttons
   document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.classList.remove("active");
   });
-  const activeButton = document.querySelector(
-    `.nav-btn[onclick="showSection('${sectionId}')"]`
-  );
+  
+  // Show the selected section
+  const section = document.getElementById(sectionId);
+  if (section) {
+    section.classList.remove("hidden");
+  }
+  
+  // Add active class to the clicked button
+  const activeButton = document.querySelector(`.nav-btn[onclick="showSection('${sectionId}')"]`);
   if (activeButton) {
     activeButton.classList.add("active");
   }
-  document.getElementById(sectionId).classList.remove("hidden");
+  
+  // Update the UI based on user role
+  updateUIForUserRole(userRole);
+  
   refreshData(sectionId);
+}
+
+function updateUIForUserRole(userRole) {
+  const adminOnlyButtons = document.querySelectorAll('.admin-only');
+  const userOnlyButtons = document.querySelectorAll('.user-only');
+  const adminOnlySections = document.querySelectorAll('.admin-only-section');
+  const userOnlySections = document.querySelectorAll('.user-only-section');
+  
+  if (userRole === 'admin') {
+    adminOnlyButtons.forEach(button => button.style.display = 'block');
+    userOnlyButtons.forEach(button => button.style.display = 'none');
+    adminOnlySections.forEach(section => section.style.display = 'block');
+    userOnlySections.forEach(section => section.style.display = 'none');
+  } else {
+    adminOnlyButtons.forEach(button => button.style.display = 'none');
+    userOnlyButtons.forEach(button => button.style.display = 'block');
+    adminOnlySections.forEach(section => section.style.display = 'none');
+    userOnlySections.forEach(section => section.style.display = 'block');
+  }
 }
 
 function refreshData(sectionId) {
@@ -295,17 +328,31 @@ async function markAsPaid(userId) {
 }
 
 function showNewOrderForm() {
+  const userRole = localStorage.getItem("userRole");
+  const userId = localStorage.getItem("userId");
+  
   document.getElementById("orderModalTitle").textContent = "Create New Order";
   document.getElementById("orderForm").onsubmit = handleCreateOrder;
 
   const userSelect = document.getElementById("orderUser");
   userSelect.innerHTML = '<option value="">Select User</option>';
-  users.forEach((user) => {
-    userSelect.innerHTML += `<option value="${user.id}">${user.name}</option>`;
-  });
+
+  if (userRole === 'admin') {
+    // Admin can select any user
+    users.forEach((user) => {
+      userSelect.innerHTML += `<option value="${user.id}">${user.name}</option>`;
+    });
+    userSelect.disabled = false;
+  } else {
+    // Regular user - auto-select their account
+    const currentUser = users.find(u => u.id === parseInt(userId));
+    if (currentUser) {
+      userSelect.innerHTML = `<option value="${currentUser.id}" selected>${currentUser.name}</option>`;
+      userSelect.disabled = true;
+    }
+  }
 
   resetOrderProducts();
-
   document.getElementById("orderModal").classList.add("show");
 }
 
@@ -364,9 +411,17 @@ async function handleCreateOrder(event) {
   event.preventDefault();
 
   try {
-    const userId = parseInt(document.getElementById("orderUser").value);
-    if (!userId) {
-      throw new Error("Please select a user!");
+    const userRole = localStorage.getItem("userRole");
+    const userId = localStorage.getItem("userId");
+    
+    let selectedUserId;
+    if (userRole === 'admin') {
+      selectedUserId = parseInt(document.getElementById("orderUser").value);
+      if (!selectedUserId) {
+        throw new Error("Please select a user!");
+      }
+    } else {
+      selectedUserId = parseInt(userId);
     }
 
     const status = document.getElementById("orderStatus").value;
@@ -431,7 +486,7 @@ async function handleCreateOrder(event) {
     }
 
     const newOrder = {
-      userId,
+      userId: selectedUserId,
       productData,
       totalAmount,
       status,
@@ -454,7 +509,7 @@ async function handleCreateOrder(event) {
     });
 
     if (status === "Unpaid") {
-      const user = users.find((u) => u.id === userId);
+      const user = users.find((u) => u.id === selectedUserId);
       if (user) {
         user.udhaar += totalAmount;
         user.dueDate = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)
@@ -617,33 +672,65 @@ function validateQuantity(inputElement) {
 }
 
 function updateDashboardStats() {
-  const totalRevenue = orders
-    .filter((order) => order.status === "Paid")
-    .reduce((sum, order) => sum + order.totalAmount, 0);
+  const userRole = localStorage.getItem("userRole");
+  const userId = localStorage.getItem("userId");
+  
+  if (userRole === 'admin') {
+    // Admin view - show all stats
+    const totalRevenue = orders
+      .filter((order) => order.status === "Paid")
+      .reduce((sum, order) => sum + order.totalAmount, 0);
 
-  const totalUdhaar = users.reduce((sum, user) => sum + user.udhaar, 0);
+    const totalUdhaar = users.reduce((sum, user) => sum + user.udhaar, 0);
 
-  const unpaidUsersCount = users.filter((user) => user.udhaar > 0).length;
+    const unpaidUsersCount = users.filter((user) => user.udhaar > 0).length;
 
-  document.getElementById("totalRevenue").textContent = `PKR - ${totalRevenue}`;
-  document.getElementById("totalUdhaar").textContent = `PKR - ${totalUdhaar}`;
-  document.getElementById("totalUsers").textContent = users.length;
-  document.getElementById("unpaidUsers").textContent = unpaidUsersCount;
-  document.getElementById("totalProducts").textContent = products.length;
-  document.getElementById("totalOrders").textContent = orders.length;
+    document.getElementById("totalRevenue").textContent = `PKR - ${totalRevenue}`;
+    document.getElementById("totalUdhaar").textContent = `PKR - ${totalUdhaar}`;
+    document.getElementById("totalUsers").textContent = users.length;
+    document.getElementById("unpaidUsers").textContent = unpaidUsersCount;
+    document.getElementById("totalProducts").textContent = products.length;
+    document.getElementById("totalOrders").textContent = orders.length;
+  } else {
+    // Regular user view - show only their stats
+    const user = users.find(u => u.id === parseInt(userId));
+    if (user) {
+      const userOrders = orders.filter(order => order.userId === parseInt(userId));
+      const paidOrders = userOrders.filter(order => order.status === "Paid");
+      const unpaidOrders = userOrders.filter(order => order.status === "Unpaid");
+      
+      const totalPaid = paidOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+      const totalUnpaid = unpaidOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+      
+      document.getElementById("totalRevenue").textContent = `PKR - ${totalPaid}`;
+      document.getElementById("totalUdhaar").textContent = `PKR - ${totalUnpaid}`;
+      document.getElementById("totalUsers").textContent = "1";
+      document.getElementById("unpaidUsers").textContent = unpaidOrders.length > 0 ? "1" : "0";
+      document.getElementById("totalProducts").textContent = products.length;
+      document.getElementById("totalOrders").textContent = userOrders.length;
+    }
+  }
 
   updateTodayUdhaar();
-
   updateDuePayments();
 }
 
 function updateTodayUdhaar() {
+  const userRole = localStorage.getItem("userRole");
+  const userId = localStorage.getItem("userId");
   const todayUdhaarList = document.getElementById("todayUdhaarList");
   const today = new Date().toISOString().split("T")[0];
 
-  const todayOrders = orders.filter(
-    (order) => order.date === today && order.status === "Unpaid"
-  );
+  let todayOrders;
+  if (userRole === 'admin') {
+    todayOrders = orders.filter(
+      (order) => order.date === today && order.status === "Unpaid"
+    );
+  } else {
+    todayOrders = orders.filter(
+      (order) => order.date === today && order.status === "Unpaid" && order.userId === parseInt(userId)
+    );
+  }
 
   if (todayOrders.length === 0) {
     todayUdhaarList.innerHTML =
@@ -669,12 +756,21 @@ function updateTodayUdhaar() {
 }
 
 function updateDuePayments() {
+  const userRole = localStorage.getItem("userRole");
+  const userId = localStorage.getItem("userId");
   const duePaymentsList = document.getElementById("duePaymentsList");
   const today = new Date();
 
-  const dueUsers = users
-    .filter((user) => user.udhaar > 0 && user.dueDate)
-    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+  let dueUsers;
+  if (userRole === 'admin') {
+    dueUsers = users
+      .filter((user) => user.udhaar > 0 && user.dueDate)
+      .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+  } else {
+    dueUsers = users
+      .filter((user) => user.id === parseInt(userId) && user.udhaar > 0 && user.dueDate)
+      .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+  }
 
   if (dueUsers.length === 0) {
     duePaymentsList.innerHTML =

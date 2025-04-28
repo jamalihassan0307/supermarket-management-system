@@ -13,11 +13,15 @@
         <button onclick="showSection('overview')" class="nav-btn">
           Dashboard
         </button>
-        <button onclick="showSection('products')" class="nav-btn">
+        <button onclick="showSection('products')" class="nav-btn admin-only">
           Products
         </button>
-        <button onclick="showSection('orders')" class="nav-btn">Orders</button>
-        <button onclick="showSection('users')" class="nav-btn">Users</button>
+        <button onclick="showSection('orders')" class="nav-btn">
+          Orders
+        </button>
+        <button onclick="showSection('users')" class="nav-btn admin-only">
+          Users
+        </button>
         <button onclick="logout()" class="nav-btn logout">Logout</button>
       </div>
     </nav>
@@ -41,21 +45,21 @@
               <p id="totalUdhaar">PKR - 0</p>
             </div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card admin-only-section">
             <div class="stat-icon">👥</div>
             <div class="stat-info">
               <h3>Total Users</h3>
               <p id="totalUsers">0</p>
             </div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card admin-only-section">
             <div class="stat-icon">⚠️</div>
             <div class="stat-info">
               <h3>Unpaid Users</h3>
               <p id="unpaidUsers">0</p>
             </div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card admin-only-section">
             <div class="stat-icon">📦</div>
             <div class="stat-info">
               <h3>Total Products</h3>
@@ -99,7 +103,7 @@
             onkeyup="searchProducts()"
           />
         </div>
-        <button onclick="showAddProductForm()" class="action-btn">
+        <button onclick="showAddProductForm()" class="action-btn admin-only">
           Add New Product
         </button>
 
@@ -141,7 +145,7 @@
             onkeyup="searchUsers()"
           />
         </div>
-        <button onclick="showAddUserForm()" class="action-btn">
+        <button onclick="showAddUserForm()" class="action-btn admin-only">
           Add New User
         </button>
 
